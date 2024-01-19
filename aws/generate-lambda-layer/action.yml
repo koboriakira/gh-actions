@@ -42,6 +42,7 @@ runs:
       run: |
         mkdir python
         pip install -r requirements.txt \
+          --quiet \
           --no-cache-dir \
           -t python/python \
           --upgrade
