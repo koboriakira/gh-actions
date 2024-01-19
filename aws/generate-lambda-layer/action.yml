@@ -1,0 +1,56 @@
+name: Generate Lambda Layer
+description: 依存ライブラリをダウンロードしてLambdaレイヤーで利用できるzipにする
+# refs: https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/python-package.html#python-package-dependencies-layers
+
+inputs:
+  # 以下は任意
+  workdir:
+    required: true
+    description: requirements.txtもしくはPipfileがあるディレクトリ
+    default: "."
+  python-version:
+    required: true
+    default: "3.11"
+    description: Pythonバージョン
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+        cache: "pipenv"
+
+    - name: Check if requirements.txt exists
+      run: |
+        if [ ! -f requirements.txt ]; then
+          echo HAS_REQUIREMENTS=false >> $GITHUB_ENV
+        else
+          echo HAS_REQUIREMENTS=true >> $GITHUB_ENV
+        fi
+      shell: bash
+
+    - name: Generate requirements.txt
+      if: env.HAS_REQUIREMENTS == 'false'
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install pipenv
+        python -m pipenv sync --clear
+        python -m pipenv run pip freeze > requirements.txt
+
+    - name: Install dependencies
+      run: |
+        mkdir python
+        pip install -r requirements.txt \
+          --no-cache-dir \
+          -t python/python \
+          --upgrade
+      shell: bash
+
+    - name: Zip dependencies
+      run: |
+        cd python
+        zip -r ../dependencies.zip .
+        rm -rf python
+      shell: bash
