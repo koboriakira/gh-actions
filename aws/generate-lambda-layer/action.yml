@@ -51,6 +51,6 @@ runs:
     - name: Zip dependencies
       run: |
         cd python
-        zip -r ../dependencies.zip .
+        zip --quiet -r ../dependencies.zip .
         rm -rf python
       shell: bash
