@@ -6,11 +6,10 @@ inputs:
   aws-role:
     description: AWS OIDC Role for environment
     required: true
-  # 以下は任意
   environment:
     required: true
     description: 環境名
-    default: "production"
+  # 以下は任意
   target-stack:
     required: true
     description: デプロイ対象のスタック名
@@ -55,7 +54,12 @@ runs:
 
     - name: CDK Deploy
       working-directory: ${{ inputs.workdir }}
-      run: npx cdk -c "env=$ENV" deploy "$TARGET_STACK" --require-approval never
+      run: |
+        set -a
+        . ./.env
+        set +a
+        npx cdk -c "env=$ENV" bootstrap "$TARGET_STACK"
+        npx cdk -c "env=$ENV" deploy "$TARGET_STACK" --require-approval never
       shell: sh
       env:
         ENV: ${{ inputs.environment }}
