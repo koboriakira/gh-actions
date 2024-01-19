@@ -55,9 +55,6 @@ runs:
     - name: CDK Deploy
       working-directory: ${{ inputs.workdir }}
       run: |
-        set -a
-        . ./.env
-        set +a
         npx cdk -c "env=$ENV" bootstrap "$TARGET_STACK"
         npx cdk -c "env=$ENV" deploy "$TARGET_STACK" --require-approval never
       shell: sh
