@@ -46,6 +46,7 @@ runs:
           --no-cache-dir \
           -t python/python \
           --upgrade
+        pip freeze
       shell: bash
 
     - name: Zip dependencies
